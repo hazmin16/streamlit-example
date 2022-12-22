@@ -17,21 +17,21 @@ In the meantime, below is an example of what you can do with just a few lines of
 
 
 with st.echo(code_location='below'):
-    total_points = st.slider("Number of points in spiral", 1, 5000, 2000)
-    num_turns = st.slider("Number of turns in spiral", 1, 100, 9)
+    import os
+    import xml.etree.ElementTree as ET 
+    import pandas as pd
+    planilla = pd.read_excel('Formulario equivalencias.xlsx')
+    planilla.drop(0,axis=0,inplace=True)
+    planilla=planilla.rename(columns={'Información sobre Dispositivo Médico':'Nombre Español','Unnamed: 1':'Nombre Ingles','Códigos identificación':'UMDNS','Unnamed: 3':'GMDN','NO COMPLETAR':'Término EMDN','NO COMPLETAR.1':'Código EMDN'})
+    Base = pd.read_excel("GMDN_EMDN_VF.xlsx")
+    Base_GMDN_EMDN =Base[['codigo1_1','termino1_1','codigo2_1','termino2_1']]
+    Base_GMDN_EMDN=Base_GMDN_EMDN.rename(columns={'codigo1_1':'Codigo GMDN','termino1_1':'Termino GMDN','codigo2_1':'Codigo EMDN','termino2_1':'Termino EMDN'})
+    Base_GMDN_EMDN=Base_GMDN_EMDN.rename(columns={'codigo1_1':'Codigo GMDN','termino1_1':'Termino GMDN','codigo2_1':'Codigo EMDN','termino2_1':'Termino EMDN'})
+    planilla = planilla.rename(columns={'GMDN':'Codigo GMDN'})
+    planilla['Codigo GMDN'] = planilla['Codigo GMDN'].astype(int)
+    df_merged = Base_GMDN_EMDN.merge(planilla)
+    df_merged.to_excel("formulario equivalencias respuesta.xlsx",index=False)
 
-    Point = namedtuple('Point', 'x y')
-    data = []
-
-    points_per_turn = total_points / num_turns
-
-    for curr_point_num in range(total_points):
-        curr_turn, i = divmod(curr_point_num, points_per_turn)
-        angle = (curr_turn + 1) * 2 * math.pi * i / points_per_turn
-        radius = curr_point_num / total_points
-        x = radius * math.cos(angle)
-        y = radius * math.sin(angle)
-        data.append(Point(x, y))
 
     st.altair_chart(alt.Chart(pd.DataFrame(data), height=500, width=500)
         .mark_circle(color='#0068c9', opacity=0.5)
